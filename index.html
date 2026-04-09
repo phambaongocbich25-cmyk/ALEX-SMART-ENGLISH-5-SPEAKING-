@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALEX SMART AI 26.0 - Full 20 Units</title>
+    <style>
+        :root {
+            --primary-blue: #154ba3;
+            --light-blue: #e8f0fe;
+            --border-color: #a0c3ff;
+            --error-bg: #fff0f0;
+            --correct-green: #2d8a2d;
+            --error-red: #d32f2f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .app-container {
+            width: 950px;
+            background: white;
+            border: 4px solid var(--primary-blue);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Setup Bar */
+        .setup-bar {
+            background-color: var(--light-blue);
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        input, select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 40px;
+            text-align: center;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alex-question {
+            color: var(--primary-blue);
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            line-height: 1.2;
+        }
+
+        .user-bubble {
+            border: 2px dashed var(--primary-blue);
+            border-radius: 30px;
+            padding: 15px 40px;
+            font-size: 22px;
+            margin: 20px 0;
+            display: none;
+            background: #fafafa;
+        }
+
+        /* Feedback Panels */
+        .feedback-panel {
+            width: 90%;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .repeat-box {
+            background: #fff8e1;
+            border: 2px solid #ffa000;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .review-box {
+            background: var(--error-bg);
+            border: 1px solid #ffcdd2;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        /* Controls */
+        .controls { margin-top: 30px; }
+        .mode-switch { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+
+        button { cursor: pointer; border: none; transition: 0.3s; }
+        .btn-mode { padding: 10px 25px; border-radius: 20px; background: #e0e0e0; font-weight: bold; }
+        .btn-mode.active { background: var(--primary-blue); color: white; }
+
+        .btn-start {
+            background: var(--primary-blue);
+            color: white;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .btn-start:hover { transform: scale(1.05); background: #1a5bc4; }
+
+        #textInputContainer { display: none; margin-top: 20px; gap: 10px; }
+        #textInput { width: 400px; font-size: 18px; }
+
+        /* Certificate */
+        #certificate {
+            display: none;
+            padding: 60px 40px;
+            text-align: center;
+            background: white;
+        }
+        .cert-border { border: 15px double #ffd700; padding: 40px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">ALEX SMART AI 26.0 🚀</div>
+    
+    <div class="setup-bar">
+        <input type="text" id="studentName" placeholder="Student Name...">
+        <input type="text" id="classInput" placeholder="Class...">
+        <select id="talkMode">
+            <option value="alex_asks">Alex Asks (Alex hỏi)</option>
+            <option value="student_asks">Student Asks (Học sinh hỏi)</option>
+        </select>
+        <select id="unitSelect"></select>
+    </div>
+
+    <div class="main-content" id="appBody">
+        <div id="interactionArea">
+            <div class="alex-question" id="alexMsg">Welcome! Please fill info and click START.</div>
+            <div class="user-bubble" id="userBubble"></div>
+        </div>
+
+        <div class="feedback-panel" id="feedbackPanel">
+            <div class="repeat-box">
+                <strong style="color: #e65100;">⚠️ REPEAT AFTER ALEX:</strong>
+                <div id="correctSentence" style="font-size: 24px; font-weight: bold; color: #b71c1c; margin: 10px 0;"></div>
+                <button onclick="speakText(document.getElementById('correctSentence').innerText)" style="background:none; color: #154ba3; text-decoration: underline; font-size: 14px;">(Click to hear pronunciation)</button>
+            </div>
+            <div class="review-box" id="reviewDetails"></div>
+        </div>
+
+        <div class="controls">
+            <div class="mode-switch">
+                <button class="btn-mode active" id="vMode">🎤 Voice Mode</button>
+                <button class="btn-mode" id="tMode">⌨️ Text Mode</button>
+            </div>
+            <button class="btn-start" id="mainBtn">START TALKING</button>
+            <div id="textInputContainer">
+                <input type="text" id="tInput" placeholder="Type your answer here...">
+                <button class="btn-mode active" id="sendBtn">✓ Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="certificate">
+        <div class="cert-border">
+            <h1 style="color: var(--primary-blue); font-size: 60px; margin: 0;">CERTIFICATE</h1>
+            <p style="font-size: 20px;">Proudly presented to</p>
+            <h2 id="certName" style="color: #d32f2f; font-size: 45px; margin: 20px 0;">Nguyen Hoang Minh</h2>
+            <h3 id="certUnit" style="font-size: 28px;">Mastered Unit 5: My future job</h3>
+            <p style="font-size: 20px;">Class: <strong id="certClass">5/2</strong></p>
+            <p style="color: var(--correct-green); font-size: 22px; font-style: italic; margin-top: 40px;">"Please talk to Alex every day to speak English better!"</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// DỮ LIỆU 20 UNIT
+const unitData = {
+    1: { title: "All about me", script: [
+        { q: "Can you tell me about yourself?", a: "My name is Lina. I’m in Class 5A." },
+        { q: "What’s your favourite colour?", a: "It’s blue." },
+        { q: "What’s your favourite sport?", a: "It’s swimming." }
+    ]},
+    2: { title: "Our homes", script: [
+        { q: "Do you live in this house?", a: "Yes, I do." },
+        { q: "What’s your address?", a: "It’s 50 Hoa Binh Street." }
+    ]},
+    3: { title: "My foreign friends", script: [
+        { q: "Where are you from?", a: "I’m from Vietnam." },
+        { q: "What nationality are you?", a: "I’m Vietnamese." },
+        { q: "What’s your friend like?", a: "He’s friendly." }
+    ]},
+    4: { title: "Our free-time activities", script: [
+        { q: "What do you like in your free time?", a: "I like surfing the Internet." },
+        { q: "What do you do at the weekend?", a: "I always read stories." }
+    ]},
+    5: { title: "My future job", script: [
+        { q: "What would you like to be in the future?", a: "I’d like to be a teacher." },
+        { q: "Why would you like to be a teacher?", a: "Because I’d like to teach children." }
+    ]},
+    6: { title: "Our school rooms", script: [
+        { q: "Where is the library?", a: "It’s on the ground floor." },
+        { q: "Could you tell me the way to the gym?", a: "Go past the library and it’s on the right." }
+    ]},
+    7: { title: "Our favourite school activities", script: [
+        { q: "What school activity do you like?", a: "I like doing projects." },
+        { q: "Why do you like solving maths problems?", a: "Because I think it’s useful." }
+    ]},
+    8: { title: "In our classroom", script: [
+        { q: "Where are the maps?", a: "They’re on the wall." },
+        { q: "Whose crayon is this?", a: "It’s Bill’s." }
+    ]},
+    9: { title: "Our outdoor activities", script: [
+        { q: "Were you at the theatre yesterday?", a: "Yes, we were." },
+        { q: "What did you do yesterday?", a: "I listened to music." }
+    ]},
+    10: { title: "Our school trip", script: [
+        { q: "Did they go to Thu Le zoo?", a: "Yes, they did." },
+        { q: "What did they do there?", a: "They planted trees." }
+    ]},
+    11: { title: "Family time", script: [
+        { q: "Did you swim in the sea?", a: "Yes, I did. I swam with my brother." },
+        { q: "What did your family do in Ha Long Bay?", a: "We took a boat trip around the bay." }
+    ]},
+    12: { title: "Our Tet holiday", script: [
+        { q: "Will you make banh chung?", a: "No, I won’t. I’ll make spring rolls." },
+        { q: "Where will you go at Tet?", a: "I’ll go to a fireworks show." }
+    ]},
+    13: { title: "Our special days", script: [
+        { q: "What will you do on Children’s Day?", a: "We’ll dance." },
+        { q: "What food will you have?", a: "We’ll have pizza." }
+    ]},
+    14: { title: "Staying healthy", script: [
+        { q: "How do you stay healthy?", a: "I do morning exercise." },
+        { q: "How often do you do yoga?", a: "Once a week." }
+    ]},
+    15: { title: "Our health", script: [
+        { q: "What’s the matter with you?", a: "I have a headache." },
+        { q: "What should I do?", a: "You should go to the dentist." }
+    ]},
+    16: { title: "Seasons and the weather", script: [
+        { q: "How’s the weather in Ha Noi in autumn?", a: "It’s cool." },
+        { q: "What do you wear in summer?", a: "I wear trousers." }
+    ]},
+    17: { title: "Stories for children", script: [
+        { q: "Who are the main characters?", a: "The tortoise and the hare." },
+        { q: "How did he work?", a: "He worked hard." }
+    ]},
+    18: { title: "Means of transport", script: [
+        { q: "Where do you want to visit?", a: "I want to visit Dragon Bridge." },
+        { q: "How can I get there?", a: "By bicycle." }
+    ]},
+    19: { title: "Places of interest", script: [
+        { q: "What do you think of Hoi An Old Town?", a: "It’s exciting." },
+        { q: "How far is it from Da Nang to Hoi An?", a: "About 29 kilometres." }
+    ]},
+    20: { title: "Our summer holidays", script: [
+        { q: "Where are you going this summer?", a: "I’m going to visit Phu Quoc Island." },
+        { q: "What are you going to do?", a: "I’m going to go camping." }
+    ]}
+};
+
+// Khởi tạo danh sách Unit vào Select
+const unitSelect = document.getElementById('unitSelect');
+for (let i = 1; i <= 20; i++) {
+    let opt = document.createElement('option');
+    opt.value = i;
+    opt.innerHTML = `Unit ${i}: ${unitData[i].title}`;
+    unitSelect.appendChild(opt);
+}
+
+let step = 0;
+let isVoice = true;
+const synth = window.speechSynthesis;
+
+// Đổi chế độ
+document.getElementById('tMode').onclick = () => {
+    isVoice = false;
+    document.getElementById('tMode').classList.add('active');
+    document.getElementById('vMode').classList.remove('active');
+    document.getElementById('textInputContainer').style.display = 'flex';
+    document.getElementById('mainBtn').style.display = 'none';
+};
+
+document.getElementById('vMode').onclick = () => {
+    isVoice = true;
+    document.getElementById('vMode').classList.add('active');
+    document.getElementById('tMode').classList.remove('active');
+    document.getElementById('textInputContainer').style.display = 'none';
+    document.getElementById('mainBtn').style.display = 'block';
+};
+
+// Bắt đầu
+document.getElementById('mainBtn').onclick = () => {
+    if(step === 0) startConversation();
+    else startListening();
+};
+
+function startConversation() {
+    step = 0;
+    const unit = unitData[unitSelect.value];
+    document.getElementById('feedbackPanel').style.display = 'none';
+    document.getElementById('userBubble').style.display = 'none';
+    ask(unit.script[step].q);
+}
+
+function ask(text) {
+    document.getElementById('alexMsg').innerText = text;
+    speakText(text);
+}
+
+function speakText(text) {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    u.rate = 0.9;
+    synth.speak(u);
+}
+
+function process(ans) {
+    const unit = unitData[unitSelect.value];
+    const correct = unit.script[step].a;
+    
+    document.getElementById('userBubble').innerText = `You: "${ans}"`;
+    document.getElementById('userBubble').style.display = 'block';
+
+    // So sánh logic cơ bản (kiểm tra từ khóa chính)
+    let isCorrect = false;
+    let keywords = correct.toLowerCase().replace(/[.,?!]/g, "").split(" ");
+    let userWords = ans.toLowerCase();
+    
+    // Nếu đúng trên 60% từ khóa thì chấp nhận
+    let matchCount = keywords.filter(w => w.length > 2 && userWords.includes(w)).length;
+    if(matchCount >= 1 || userWords.includes(correct.toLowerCase())) isCorrect = true;
+
+    if (isCorrect) {
+        document.getElementById('feedbackPanel').style.display = 'none';
+        step++;
+        if (step < unit.script.length) {
+            setTimeout(() => ask(unit.script[step].q), 1500);
+        } else {
+            setTimeout(finish, 1500);
+        }
+    } else {
+        showMistake(unit.script[step].q, ans, correct);
+    }
+}
+
+function showMistake(q, user, correct) {
+    document.getElementById('feedbackPanel').style.display = 'block';
+    document.getElementById('correctSentence').innerText = correct;
+    document.getElementById('reviewDetails').innerHTML = `
+        <p><strong>Q:</strong> ${q}</p>
+        <p style="color:var(--error-red)">❌ <strong>You said:</strong> ${user}</p>
+        <p style="color:var(--correct-green)">✅ <strong>Correct:</strong> ${correct}</p>
+    `;
+    speakText(correct);
+}
+
+function finish() {
+    document.getElementById('appBody').style.display = 'none';
+    document.getElementById('certificate').style.display = 'block';
+    document.getElementById('certName').innerText = document.getElementById('studentName').value || "Excellent Student";
+    document.getElementById('certClass').innerText = document.getElementById('classInput').value || "5";
+    document.getElementById('certUnit').innerText = `Mastered Unit ${unitSelect.value}: ${unitData[unitSelect.value].title}`;
+}
+
+// Nhận diện giọng nói
+function startListening() {
+    if (!('webkitSpeechRecognition' in window)) return alert("Trình duyệt không hỗ trợ nhận diện giọng nói.");
+    const rec = new webkitSpeechRecognition();
+    rec.lang = 'en-US';
+    rec.onstart = () => document.getElementById('mainBtn').innerText = "Listening...";
+    rec.onresult = (e) => {
+        const result = e.results[0][0].transcript;
+        document.getElementById('mainBtn').innerText = "START TALKING";
+        process(result);
+    };
+    rec.start();
+}
+
+// Gửi bằng text
+document.getElementById('sendBtn').onclick = () => {
+    const val = document.getElementById('tInput').value;
+    if(val) {
+        process(val);
+        document.getElementById('tInput').value = "";
+    }
+};
+</script>
+</body>
+</html>
